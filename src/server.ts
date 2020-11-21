@@ -1,9 +1,10 @@
-import * as express from 'express'
+import 'dotenv/config';
+import App from './app';
+import PostsController from './posts/posts.controller';
+import validateEnv from './utils/validateEnv';
 
-const app = express();
+validateEnv();
 
-app.get('/', (request, response) => {
-  response.send('Heelo darkness my old friend!');
-});
+const app = new App([new PostsController()]);
 
-app.listen(5000);
+app.listen();

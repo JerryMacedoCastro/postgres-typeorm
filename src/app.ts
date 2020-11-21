@@ -2,6 +2,7 @@ import * as bodyParser from 'body-parser';
 import express from 'express';
 import mongoose from 'mongoose';
 import Controller from './interfaces/controller.interface';
+import errorMiddleware from './middleware/error.middleware';
 
 class App {
   public app: express.Application;
@@ -22,6 +23,10 @@ class App {
 
   private initializeMiddlewares() {
     this.app.use(bodyParser.json());
+  }
+
+  private initializeErrorHandling() {
+    this.app.use(errorMiddleware);
   }
 
   private initializeControllers(controllers: Controller[]) {

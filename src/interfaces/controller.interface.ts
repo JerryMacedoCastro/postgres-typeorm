@@ -1,9 +1,8 @@
 import { Router } from 'express';
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
-interface Controller {
+interface IController {
   path: string;
   router: Router;
 }
 
-export default Controller;
+export default IController;

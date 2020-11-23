@@ -1,9 +1,9 @@
 import * as express from 'express';
 import Controller from '../interfaces/controller.interface';
-import Post from './posts.interface';
+import IPost from './posts.interface';
 import postModel from './posts.model';
 import PostNotFoundException from '../exceptions/PostNotFoundException';
-import CreatePostDto from './post.dto';
+import CreatePostDto from './posts.dto';
 import validationMiddleware from '../middleware/validation.middleware';
 
 class PostsController implements Controller {
@@ -61,7 +61,7 @@ class PostsController implements Controller {
     next: express.NextFunction,
   ) => {
     const { id } = request.params;
-    const postData: Post = request.body;
+    const postData: IPost = request.body;
     this.Post.findByIdAndUpdate(id, postData, { new: true })
       .then(post => {
         response.send(post);
@@ -73,7 +73,7 @@ class PostsController implements Controller {
     request: express.Request,
     response: express.Response,
   ) => {
-    const postData: Post = request.body;
+    const postData: IPost = request.body;
     const createdPost = new this.Post(postData);
     createdPost.save().then(savedPost => {
       response.send(savedPost);

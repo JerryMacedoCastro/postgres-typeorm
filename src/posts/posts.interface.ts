@@ -1,8 +1,7 @@
-// eslint-disable-next-line @typescript-eslint/naming-convention
-interface Post {
+interface IPost {
   author: string;
   content: string;
   title: string;
 }
 
-export default Post;
+export default IPost;

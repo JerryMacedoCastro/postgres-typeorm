@@ -1,14 +1,18 @@
 import * as bcrypt from 'bcrypt';
 import express, { NextFunction, Request, Response } from 'express';
+import IDataStoredInToken from 'interfaces/dataStoredInToken.interface';
+import jwt from 'jsonwebtoken';
 import UserWithThatEmailAlreadyExistsException from '../exceptions/UserWithThatEmailAlreadyExistsException';
 import WrongCredentialsException from '../exceptions/WrongCredentialsException';
-import Controller from '../interfaces/controller.interface';
+import IController from '../interfaces/controller.interface';
 import validationMiddleware from '../middleware/validation.middleware';
 import CreateUserDto from '../users/users.dto';
 import userModel from '../users/users.model';
 import LogInDto from './logIn.dto';
+import ITokenData from '../interfaces/tokenData.interface';
+import IUser from '../users/users.interface';
 
-class AuthenticationController implements Controller {
+class AuthenticationController implements IController {
   public path = '/auth';
 
   public router = express.Router();
@@ -49,6 +53,8 @@ class AuthenticationController implements Controller {
         password: hashedPassword,
       });
       user.password = '';
+      const tokenData = this.createToken(user);
+      response.setHeader('Set-Cokie', [this.createCookie(tokenData)]);
       response.send(user);
     }
   };
@@ -67,6 +73,8 @@ class AuthenticationController implements Controller {
       );
       if (isPasswordMatching) {
         user.password = '';
+        const tokenData = this.createToken(user);
+        response.setHeader('Set-Cokie', [this.createCookie(tokenData)]);
         response.send(user);
       } else {
         next(new WrongCredentialsException());
@@ -75,6 +83,23 @@ class AuthenticationController implements Controller {
       next(new WrongCredentialsException());
     }
   };
+
+  private createToken(user: IUser): ITokenData {
+    const expiresIn = 60 * 60;
+    // verificar a necessidade desse operador ternario
+    const secret = process.env.JWT_SECRET ? process.env.JWT_SECRET : '';
+    const dataStoredInToken: IDataStoredInToken = {
+      _id: user._id,
+    };
+    return {
+      expiresIn,
+      token: jwt.sign(dataStoredInToken, secret, { expiresIn }),
+    };
+  }
+
+  createCookie(tokenData: ITokenData): string {
+    return `Authorization=${tokenData.token}; HttpOnly; Max-Age=${tokenData.expiresIn}`;
+  }
 }
 
 export default AuthenticationController;

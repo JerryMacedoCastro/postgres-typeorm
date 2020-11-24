@@ -2,7 +2,9 @@ import * as mongoose from 'mongoose';
 import IUser from './users.interface';
 
 const userSchema = new mongoose.Schema({
-  name: String,
+  firstName: String,
+  lastName: String,
+  fullName: String,
   email: String,
   password: String,
 });

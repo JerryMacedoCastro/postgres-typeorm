@@ -1,4 +1,5 @@
 import * as express from 'express';
+import authMiddleware from 'middleware/auth.middleaware';
 import Controller from '../interfaces/controller.interface';
 import IPost from './posts.interface';
 import postModel from './posts.model';
@@ -20,11 +21,13 @@ class PostsController implements Controller {
   private initializeRoutes() {
     this.router.get(this.path, this.getAllPosts);
     this.router.get(`${this.path}/:id`, this.getPostById);
-    this.router.patch(
-      `${this.path}/:id`,
-      validationMiddleware(CreatePostDto, true),
-      this.modifyPost,
-    );
+    this.router
+      .all(`${this.path}/*`, authMiddleware)
+      .patch(
+        `${this.path}/:id`,
+        validationMiddleware(CreatePostDto, true),
+        this.modifyPost,
+      );
     this.router.delete(`${this.path}/:id`, this.deletePost);
     this.router.post(
       this.path,

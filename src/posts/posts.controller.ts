@@ -22,7 +22,7 @@ class PostsController implements Controller {
     this.router.get(this.path, this.getAllPosts);
     this.router.get(`${this.path}/:id`, this.getPostById);
     this.router
-      .all(`${this.path}/*`, authMiddleware)
+      .all(`${this.path}/*`, authMiddleware as express.RequestHandler)
       .patch(
         `${this.path}/:id`,
         validationMiddleware(CreatePostDto, true),

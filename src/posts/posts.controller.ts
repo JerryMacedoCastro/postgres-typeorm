@@ -1,11 +1,12 @@
 import * as express from 'express';
-import authMiddleware from 'middleware/auth.middleaware';
+import IRequestWithUser from 'interfaces/resquestWithUser.interface';
 import Controller from '../interfaces/controller.interface';
 import IPost from './posts.interface';
 import postModel from './posts.model';
-import PostNotFoundException from '../exceptions/PostNotFoundException';
 import CreatePostDto from './posts.dto';
+import PostNotFoundException from '../exceptions/PostNotFoundException';
 import validationMiddleware from '../middleware/validation.middleware';
+import authMiddleware from '../middleware/auth.middleware';
 
 class PostsController implements Controller {
   public path = '/posts';
@@ -27,13 +28,14 @@ class PostsController implements Controller {
         `${this.path}/:id`,
         validationMiddleware(CreatePostDto, true),
         this.modifyPost,
+      )
+      .delete(`${this.path}/:id`, this.deletePost)
+      .post(
+        this.path,
+        authMiddleware as express.RequestHandler,
+        validationMiddleware(CreatePostDto),
+        this.createPost,
       );
-    this.router.delete(`${this.path}/:id`, this.deletePost);
-    this.router.post(
-      this.path,
-      validationMiddleware(CreatePostDto),
-      this.createPost,
-    );
   }
 
   private getAllPosts = (
@@ -72,15 +74,19 @@ class PostsController implements Controller {
       .catch(_error => next(new PostNotFoundException(id)));
   };
 
-  private createPost = (
-    request: express.Request,
+  private createPost = async (
+    request: IRequestWithUser,
     response: express.Response,
   ) => {
-    const postData: IPost = request.body;
-    const createdPost = new this.Post(postData);
-    createdPost.save().then(savedPost => {
+    if (request.user) {
+      const postData: IPost = request.body;
+      const createdPost = new this.Post({
+        ...postData,
+        authorId: request.user._id,
+      });
+      const savedPost = await createdPost.save();
       response.send(savedPost);
-    });
+    }
   };
 
   private deletePost = (

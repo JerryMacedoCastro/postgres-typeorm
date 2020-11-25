@@ -34,6 +34,7 @@ class AuthenticationController implements IController {
       validationMiddleware(CreateUserDto),
       this.loggingIn,
     );
+    this.router.post(`${this.path}/logout`, this.loggingOut);
   }
 
   private registration = async (
@@ -54,7 +55,7 @@ class AuthenticationController implements IController {
       });
       user.password = '';
       const tokenData = this.createToken(user);
-      response.setHeader('Set-Cokie', [this.createCookie(tokenData)]);
+      response.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
       response.send(user);
     }
   };
@@ -74,7 +75,7 @@ class AuthenticationController implements IController {
       if (isPasswordMatching) {
         user.password = '';
         const tokenData = this.createToken(user);
-        response.setHeader('Set-Cokie', [this.createCookie(tokenData)]);
+        response.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
         response.send(user);
       } else {
         next(new WrongCredentialsException());
@@ -97,9 +98,14 @@ class AuthenticationController implements IController {
     };
   }
 
-  createCookie(tokenData: ITokenData): string {
+  private createCookie(tokenData: ITokenData): string {
     return `Authorization=${tokenData.token}; HttpOnly; Max-Age=${tokenData.expiresIn}`;
   }
+
+  private loggingOut = (request: Request, response: Response): void => {
+    response.setHeader('Set-Cookie', ['Authorization=;Max-age=0']);
+    response.send(200);
+  };
 }
 
 export default AuthenticationController;

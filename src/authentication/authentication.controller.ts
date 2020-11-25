@@ -75,7 +75,7 @@ class AuthenticationController implements IController {
       if (isPasswordMatching) {
         user.password = '';
         const tokenData = this.createToken(user);
-        response.setHeader('Set-Cokie', [this.createCookie(tokenData)]);
+        response.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
         response.send(user);
       } else {
         next(new WrongCredentialsException());

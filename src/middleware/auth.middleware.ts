@@ -1,4 +1,4 @@
-import { NextFunction, RequestHandler, Response } from 'express';
+import { NextFunction, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
 import AuthenticationTokenMissingException from '../exceptions/AuthenticationTokenMissingException';
 import WrongAuthenticationTokenException from '../exceptions/WrongAuthenticationTokenException';

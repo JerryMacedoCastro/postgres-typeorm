@@ -42,9 +42,14 @@ class PostsController implements Controller {
     request: express.Request,
     response: express.Response,
   ) => {
-    this.Post.find().then(posts => {
-      response.send(posts);
-    });
+    this.Post.find()
+      .populate('author', '-password')
+      .then(posts => {
+        response.send(posts);
+      })
+      .catch(error => {
+        response.send(error.message);
+      });
   };
 
   private getPostById = (
@@ -82,9 +87,10 @@ class PostsController implements Controller {
       const postData: IPost = request.body;
       const createdPost = new this.Post({
         ...postData,
-        authorId: request.user._id,
+        author: request.user._id,
       });
       const savedPost = await createdPost.save();
+      await savedPost.populate('author', '-password').execPopulate();
       response.send(savedPost);
     }
   };

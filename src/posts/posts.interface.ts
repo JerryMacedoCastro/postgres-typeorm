@@ -1,5 +1,5 @@
 interface IPost {
-  author: string;
+  authorId: string;
   content: string;
   title: string;
 }

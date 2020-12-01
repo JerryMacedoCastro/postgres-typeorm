@@ -1,4 +1,6 @@
 import { IsString } from 'class-validator';
+import { OneToMany } from 'typeorm';
+import Post from '../posts/posts.interface';
 
 class CreateUserDto {
   @IsString()

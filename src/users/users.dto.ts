@@ -1,6 +1,5 @@
-import { IsString } from 'class-validator';
-import { OneToMany } from 'typeorm';
-import Post from '../posts/posts.interface';
+import { IsOptional, IsString, ValidateNested } from 'class-validator';
+import CreateAddressDto from '../address/address.dto';
 
 class CreateUserDto {
   @IsString()
@@ -11,6 +10,10 @@ class CreateUserDto {
 
   @IsString()
   public password: string;
+
+  @IsOptional()
+  @ValidateNested()
+  public address?: CreateAddressDto;
 }
 
 export default CreateUserDto;

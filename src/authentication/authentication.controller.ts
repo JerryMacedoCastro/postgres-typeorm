@@ -2,22 +2,22 @@ import * as bcrypt from 'bcrypt';
 import express, { NextFunction, Request, Response } from 'express';
 import IDataStoredInToken from 'interfaces/dataStoredInToken.interface';
 import jwt from 'jsonwebtoken';
+import { getRepository } from 'typeorm';
 import UserWithThatEmailAlreadyExistsException from '../exceptions/UserWithThatEmailAlreadyExistsException';
 import WrongCredentialsException from '../exceptions/WrongCredentialsException';
 import IController from '../interfaces/controller.interface';
 import validationMiddleware from '../middleware/validation.middleware';
 import CreateUserDto from '../users/users.dto';
-import userModel from '../users/users.model';
+import UserEntity from '../users/users.entity';
 import LogInDto from './logIn.dto';
 import ITokenData from '../interfaces/tokenData.interface';
-import IUser from '../users/users.interface';
 
 class AuthenticationController implements IController {
   public path = '/auth';
 
   public router = express.Router();
 
-  private user = userModel;
+  private userRepository = getRepository(UserEntity);
 
   constructor() {
     this.initializeRoutes();
@@ -43,16 +43,18 @@ class AuthenticationController implements IController {
     next: NextFunction,
   ): Promise<void> => {
     const userData: CreateUserDto = request.body;
-    const userEmail = await this.user.findOne({ email: userData.email });
+    const userEmail = await this.userRepository.findOne({
+      email: userData.email,
+    });
 
     if (userEmail) {
       next(new UserWithThatEmailAlreadyExistsException(userData.email));
     } else {
       const hashedPassword = await bcrypt.hash(userData.password, 10);
-      const user = await this.user.create({
-        ...userData,
-        password: hashedPassword,
-      });
+      userData.password = hashedPassword;
+      const user = this.userRepository.create({ ...userData });
+      await this.userRepository.save(user);
+
       user.password = '';
       const tokenData = this.createToken(user);
       response.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
@@ -66,7 +68,7 @@ class AuthenticationController implements IController {
     next: NextFunction,
   ): Promise<void> => {
     const logInData: LogInDto = request.body;
-    const user = await this.user.findOne({ email: logInData.email });
+    const user = await this.userRepository.findOne({ email: logInData.email });
     if (user) {
       const isPasswordMatching = await bcrypt.compare(
         logInData.password,
@@ -85,12 +87,12 @@ class AuthenticationController implements IController {
     }
   };
 
-  private createToken(user: IUser): ITokenData {
+  private createToken(user: UserEntity): ITokenData {
     const expiresIn = 60 * 60;
     // verificar a necessidade desse operador ternario
     const secret = process.env.JWT_SECRET ? process.env.JWT_SECRET : '';
     const dataStoredInToken: IDataStoredInToken = {
-      _id: user._id,
+      _id: user.id,
     };
     return {
       expiresIn,

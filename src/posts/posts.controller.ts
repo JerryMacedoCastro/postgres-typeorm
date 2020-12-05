@@ -8,7 +8,7 @@ import { getRepository } from 'typeorm';
 import Controller from '../interfaces/controller.interface';
 import IPost from './posts.interface';
 import CreatePostDto from './posts.dto';
-import Post from './posts.entity';
+import PostEntity from './posts.entity';
 import PostNotFoundException from '../exceptions/PostNotFoundException';
 import validationMiddleware from '../middleware/validation.middleware';
 import authMiddleware from '../middleware/auth.middleware';
@@ -18,7 +18,7 @@ class PostsController implements Controller {
 
   public router = express.Router();
 
-  private postRepository = getRepository(Post);
+  private postRepository = getRepository(PostEntity);
 
   constructor() {
     this.initializeRoutes();

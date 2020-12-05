@@ -1,11 +1,7 @@
-import express, {
-  NextFunction,
-  RequestHandler,
-  Router,
-  Response,
-} from 'express';
+import { NextFunction, RequestHandler, Router, Response } from 'express';
 import IRequestWithUser from 'interfaces/resquestWithUser.interface';
-import postModel from '../posts/posts.model';
+import { getRepository } from 'typeorm';
+import postEntity from '../posts/posts.entity';
 import IController from '../interfaces/controller.interface';
 import NotAuthorizationException from '../exceptions/NotAuthorizationException';
 import authMiddleware from '../middleware/auth.middleware';
@@ -15,7 +11,7 @@ class UsersController implements IController {
 
   public router = Router();
 
-  private post = postModel;
+  private post = getRepository(postEntity);
 
   constructor() {
     this.initializeRoutes();
@@ -36,11 +32,11 @@ class UsersController implements IController {
   ) => {
     const userId = request.params.id;
 
-    if (userId.toString() === request.user?._id.toString()) {
-      const posts = await this.post.find({ author: userId });
+    if (userId.toString() === request.user?.id.toString()) {
+      const posts = await this.post.find();
       response.send(posts);
     } else {
-      next(new NotAuthorizationException(`${userId} - ${request.user?._id}`));
+      next(new NotAuthorizationException(`${userId} - ${request.user?.id}`));
     }
   };
 }

@@ -4,6 +4,7 @@ import config from './ormconfig';
 import App from './app';
 import PostsController from './posts/posts.controller';
 import UsersController from './users/users.controller';
+import AddressController from './address/address.controller';
 import AuthenticationController from './authentication/authentication.controller';
 import validateEnv from './utils/validateEnv';
 
@@ -19,6 +20,7 @@ validateEnv();
     new PostsController(),
     new AuthenticationController(),
     new UsersController(),
+    new AddressController(),
   ]);
 
   app.listen();

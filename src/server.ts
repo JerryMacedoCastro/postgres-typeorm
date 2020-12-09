@@ -6,6 +6,7 @@ import PostsController from './posts/posts.controller';
 import UsersController from './users/users.controller';
 import AddressController from './address/address.controller';
 import AuthenticationController from './authentication/authentication.controller';
+import CategoryController from './categories/category.controller';
 import validateEnv from './utils/validateEnv';
 
 validateEnv();
@@ -21,6 +22,7 @@ validateEnv();
     new AuthenticationController(),
     new UsersController(),
     new AddressController(),
+    new CategoryController(),
   ]);
 
   app.listen();

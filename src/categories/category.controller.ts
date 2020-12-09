@@ -1,11 +1,11 @@
 import express, { Response, Request, NextFunction } from 'express';
 import IController from 'interfaces/controller.interface';
-import validationMiddleware from 'middleware/validation.middleware';
 import { getRepository } from 'typeorm';
-import authMiddleware from 'middleware/auth.middleware';
-import CategoryNotFoundException from 'exceptions/CategoryNotFoundException';
 import Category from './category.entity';
 import CreateCategoryDto from './category.dto';
+import validationMiddleware from '../middleware/validation.middleware';
+import authMiddleware from '../middleware/auth.middleware';
+import CategoryNotFoundException from '../exceptions/CategoryNotFoundException';
 
 class CategoryController implements IController {
   public path = '/categories';

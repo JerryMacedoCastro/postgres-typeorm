@@ -2,10 +2,12 @@ import {
   Column,
   Entity,
   JoinColumn,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import Address from '../address/address.entity';
+import Post from '../posts/posts.entity';
 
 @Entity()
 class User {
@@ -27,6 +29,9 @@ class User {
   })
   @JoinColumn()
   public address: Address;
+
+  @OneToMany(() => Post, (post: Post) => post.author)
+  public posts: Post[];
 }
 
 export default User;

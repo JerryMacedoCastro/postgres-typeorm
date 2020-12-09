@@ -12,6 +12,7 @@ import PostEntity from './posts.entity';
 import PostNotFoundException from '../exceptions/PostNotFoundException';
 import validationMiddleware from '../middleware/validation.middleware';
 import authMiddleware from '../middleware/auth.middleware';
+import IRequestWithUser from '../interfaces/resquestWithUser.interface';
 
 class PostsController implements Controller {
   public path = '/posts';
@@ -44,7 +45,7 @@ class PostsController implements Controller {
   }
 
   private getAllPosts = async (_request: Request, response: Response) => {
-    const posts = await this.postRepository.find();
+    const posts = await this.postRepository.find({ relations: ['categories'] });
     response.send(posts);
   };
 
@@ -54,7 +55,9 @@ class PostsController implements Controller {
     next: NextFunction,
   ) => {
     const { id } = request.params;
-    const post = await this.postRepository.findOne(id);
+    const post = await this.postRepository.findOne(id, {
+      relations: ['categories'],
+    });
     if (post) response.send(post);
     else next(new PostNotFoundException(id));
   };
@@ -72,9 +75,15 @@ class PostsController implements Controller {
     else next(new PostNotFoundException(id));
   };
 
-  private createPost = async (request: Request, response: Response) => {
+  private createPost = async (
+    request: IRequestWithUser,
+    response: Response,
+  ) => {
     const postData: CreatePostDto = request.body;
-    const newPost = this.postRepository.create(postData);
+    const newPost = this.postRepository.create({
+      ...postData,
+      author: request.user,
+    });
     await this.postRepository.save(newPost);
     response.send(newPost);
   };

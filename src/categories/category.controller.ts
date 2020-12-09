@@ -1,8 +1,9 @@
-import express, { Response, Request, RequestHandler } from 'express';
+import express, { Response, Request, NextFunction } from 'express';
 import IController from 'interfaces/controller.interface';
 import validationMiddleware from 'middleware/validation.middleware';
-import { getRepository, ObjectID } from 'typeorm';
+import { getRepository } from 'typeorm';
 import authMiddleware from 'middleware/auth.middleware';
+import CategoryNotFoundException from 'exceptions/CategoryNotFoundException';
 import Category from './category.entity';
 import CreateCategoryDto from './category.dto';
 
@@ -37,17 +38,28 @@ class CategoryController implements IController {
     response.send(newCategory);
   };
 
-  private getCategoryById = async (request: Request, response: Response) => {
+  private getCategoryById = async (
+    request: Request,
+    response: Response,
+    next: NextFunction,
+  ) => {
     const categoryId = request.params.id;
-    const category = this.CategoryRepository.findOne(categoryId, {
+    const category = await this.CategoryRepository.findOne(categoryId, {
       relations: ['posts'],
     });
+    if (category) {
+      response.send(category);
+    } else {
+      next(new CategoryNotFoundException(categoryId));
+    }
 
     response.send(category);
   };
 
   private getAllcategories = async (_request: Request, response: Response) => {
-    const categories = this.CategoryRepository.find({ relations: ['posts'] });
+    const categories = await this.CategoryRepository.find({
+      relations: ['posts'],
+    });
     response.send(categories);
   };
 }

@@ -1,5 +1,5 @@
 interface IDataStoredInToken {
-  _id: string;
+  id: string;
 }
 
 export default IDataStoredInToken;

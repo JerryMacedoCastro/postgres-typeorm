@@ -15,23 +15,26 @@ async function authMiddleware(
   const { cookies } = request;
   const userRepository = getRepository(UserEntity);
   if (cookies && cookies.Authorization) {
-    // verificar a necessidade desse operador ternario
-    const secret = process.env.JWT_SECRET ? process.env.JWT_SECRET : '';
-    try {
-      const verificationResponse = jwt.verify(
-        cookies.Authorization,
-        secret,
-      ) as IDataStoredInToken;
-      const id = verificationResponse._id;
-      const user = await userRepository.findOne(id);
-      if (user) {
-        request.user = user;
-        next();
-      } else {
+    const secret = process.env.JWT_SECRET;
+    if (secret) {
+      try {
+        const verificationResponse = jwt.verify(
+          cookies.Authorization,
+          secret,
+        ) as IDataStoredInToken;
+        const { id } = verificationResponse;
+        const user = await userRepository.findOne(id);
+        if (user) {
+          request.user = user;
+          next();
+        } else {
+          next(new WrongAuthenticationTokenException());
+        }
+      } catch (error) {
         next(new WrongAuthenticationTokenException());
       }
-    } catch (error) {
-      next(new WrongAuthenticationTokenException());
+    } else {
+      next(new AuthenticationTokenMissingException());
     }
   } else {
     next(new AuthenticationTokenMissingException());

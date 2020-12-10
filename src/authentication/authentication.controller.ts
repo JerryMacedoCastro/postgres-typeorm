@@ -92,7 +92,7 @@ class AuthenticationController implements IController {
     // verificar a necessidade desse operador ternario
     const secret = process.env.JWT_SECRET ? process.env.JWT_SECRET : '';
     const dataStoredInToken: IDataStoredInToken = {
-      _id: user.id,
+      id: user.id,
     };
     return {
       expiresIn,
@@ -104,8 +104,8 @@ class AuthenticationController implements IController {
     return `Authorization=${tokenData.token}; HttpOnly; Max-Age=${tokenData.expiresIn}`;
   }
 
-  private loggingOut = (request: Request, response: Response): void => {
-    response.setHeader('Set-Cookie', ['Authorization=;Max-age=0']);
+  private loggingOut = (request: Request, response: Response) => {
+    response.setHeader('Set-Cookie', ['Authorization=;HttpOnly;Max-age=0']);
     response.send(200);
   };
 }

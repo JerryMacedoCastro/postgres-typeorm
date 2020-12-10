@@ -5,7 +5,9 @@
   "author": "Jerry Macedo Castro <leom551@hotmail.com>",
   "license": "MIT",
   "scripts": {
-    "dev": "ts-node ./src/server.ts"
+    "dev": "ts-node ./src/server.ts",
+    "lint": "tslint -p tsconfig.json -c tslint.json",
+    "typeorm:cli": "ts-node ./node_modules/typeorm/cli -f ./src/ormconfig.ts"
   },
   "dependencies": {
     "bcrypt": "^5.0.0",
